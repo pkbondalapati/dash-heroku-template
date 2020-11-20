@@ -5,6 +5,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import plotly.figure_factory as ff
 import dash
+from dash import Dash
 from jupyter_dash import JupyterDash
 import dash_core_components as dcc
 import dash_html_components as html
@@ -99,7 +100,7 @@ fig6 = px.box(gss6_df, x="income", y="sex", color="sex", facet_col="job_prestige
 fig6.update_layout(showlegend=False)
 fig6.for_each_annotation(lambda a: a.update(text=a.text.replace("job_prestige_category=", "")))
 
-app = JupyterDash(__name__, external_stylesheets=external_stylesheets)
+app = Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.layout = html.Div(
     [
