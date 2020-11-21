@@ -4,14 +4,14 @@ import plotly.graph_objects as go
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.figure_factory as ff
-from dash import Dash
+import dash
 from jupyter_dash import JupyterDash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 
-# import plotly.offline as pyo
-# pyo.init_notebook_mode()
+import plotly.offline as pyo
+pyo.init_notebook_mode()
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -103,7 +103,8 @@ fig6 = px.box(gss6_df, x="income", y="sex", color="sex", facet_col="job_prestige
 fig6.update_layout(showlegend=False)
 fig6.for_each_annotation(lambda a: a.update(text=a.text.replace("job_prestige_category=", "")))
 
-app = JupyterDash(__name__, external_stylesheets=external_stylesheets)
+app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+server = app.server
 
 app.layout = html.Div(
     [
@@ -151,4 +152,4 @@ app.layout = html.Div(
 )
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
