@@ -2,21 +2,22 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
-import plotly.graph_objects as go
 import plotly.figure_factory as ff
 import dash
+# from jupyter_dash import JupyterDash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 
-import plotly.offline as pyo
-pyo.init_notebook_mode()
+# import plotly.offline as pyo 
+# pyo.init_notebook_mode()
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 gss = pd.read_csv("https://github.com/jkropko/DS-6001/raw/master/localdata/gss2018.csv",
                  encoding='cp1252', na_values=['IAP','IAP,DK,NA,uncodeable', 'NOT SURE',
-                                               'DK', 'IAP, DK, NA, uncodeable', '.a', "CAN'T CHOOSE"])
+                                               'DK', 'IAP, DK, NA, uncodeable', '.a', "CAN'T CHOOSE"],
+                 low_memory=False)
 
 mycols = ['id', 'wtss', 'sex', 'educ', 'region', 'age', 'coninc',
           'prestg10', 'mapres10', 'papres10', 'sei10', 'satjob',
@@ -48,7 +49,6 @@ gss_desc_text = """The General Social Survey (GSS) conducts a biennial survey th
 gss2_df = gss_clean.loc[:, ['sex','income', 'job_prestige', 'socioeconomic_index', 'education']].groupby(by=['sex']).mean().reset_index().round(2)
 gss2_df.columns = ['sex', 'mean income', 'mean occupational prestige', 'mean socioeconomic index', 'mean years of education']
 table2 = ff.create_table(gss2_df)
-# table2.show()
 
 gss3_df = gss_clean.loc[:, ['male_breadwinner', 'sex']].groupby(by=["male_breadwinner", "sex"]).agg({'sex':'size'})
 gss3_df = gss3_df.rename({'sex':'frequency'}, axis=1)
@@ -56,16 +56,13 @@ gss3_df = gss3_df.reset_index()
 gss3_df.male_breadwinner = [x.title() for x in gss3_df.male_breadwinner.values]
 gss3_df.sex = [x.title() for x in gss3_df.sex.values]
 gss3_df = gss3_df.reindex([4, 5, 0, 1, 2, 3, 6, 7])
-# gss3_df
 
 fig3 = px.bar(gss3_df, x="male_breadwinner", y="frequency", color="sex", barmode="group", 
               color_discrete_map = {'Male':'deepskyblue', 'Female':'palevioletred'}, 
               labels={"male_breadwinner":"Level of Agreement", "frequency":"Frequency", "sex":"Sex"})
-# fig3.show()
 
 gss4_df = gss_clean.loc[:, ['job_prestige', 'income', 'sex', 'education', 'socioeconomic_index']]
 gss4_df.sex = [x.title() for x in gss4_df.sex.values]
-# gss4_df
 
 fig4 = px.scatter(gss4_df, x="job_prestige", y="income", color="sex", trendline="ols",
                   color_discrete_map = {'Male':'deepskyblue', 'Female':'palevioletred'},
@@ -94,7 +91,6 @@ gss6_df['job_prestige_category'] = pd.cut(gss6_df.job_prestige, bins=6,
                                                   "Occupational Prestige 59-69", "Occupational Prestige 70-80"])
 gss6_df = gss6_df.dropna()
 gss6_df = gss6_df.sort_values(by="job_prestige_category")
-# gss6_df
 
 fig6 = px.box(gss6_df, x="income", y="sex", color="sex", facet_col="job_prestige_category", facet_col_wrap=3,
               color_discrete_map = {'Male':'deepskyblue', 'Female':'palevioletred'},
@@ -103,10 +99,10 @@ fig6.update_layout(showlegend=False)
 fig6.for_each_annotation(lambda a: a.update(text=a.text.replace("job_prestige_category=", "")))
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-server = app.server
+# server = app.server
 
-app.layout = html.Div(
-    [
+app.layout = html.Div(children=[
+    
         html.H1("Analysis of Gender Differences from the General Social Survey (GSS)"),
         
         dcc.Markdown(children = gender_pay_text),
@@ -151,4 +147,4 @@ app.layout = html.Div(
 )
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
